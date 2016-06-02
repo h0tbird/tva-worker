@@ -34,7 +34,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/bash -ex bin/jenkins</command>
+      <command>/bin/bash -ex bin/jenkins build</command>
     </hudson.tasks.Shell>
   </builders>
   <buildWrappers/>

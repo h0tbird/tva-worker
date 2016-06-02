@@ -1,27 +1,45 @@
 #!/bin/bash
 
-# Variables
-REGISTRY='internal-registry-sys.marathon:5000'
-CID="${REGISTRY}/tva/worker"
-MARATHON_URL='http://marathon:8080'
+case $1 in
 
-# Build the container:
-docker build --rm -t ${CID}:${BUILD_NUMBER} .
-docker tag -f ${CID}:${BUILD_NUMBER} ${CID}:latest
+  'setup')
 
-# Authenticate if needed:
-[[ "${EMAIL}" && "${USER}" && "${PASSWORD}" ]] && \
-docker login -e ${EMAIL} -u ${USER} -p ${PASSWORD} ${REGISTRY}
+    # Variables
+    JENKINS_URL='http://jenkins-sys.marathon'
+    JENKINS_PROJECT='docker-tva-worker'
 
-# Push to the registry:
-docker push ${CID}:${BUILD_NUMBER}
-docker push ${CID}:latest
+    curl -sX POST "${JENKINS_URL}/createItem?name=${JENKINS_PROJECT}" \
+      --data-binary "@jenkins.xml" \
+      -H "Content-Type: text/xml"
+    ;;
 
-# Logout if needed:
-[[ "${EMAIL}" && "${USER}" && "${PASSWORD}" ]] && \
-docker logout
+  'build')
 
-# Deploy to Marathon:
-cat marathon.json | jq ".container.docker.image |= \"${CID}:${BUILD_NUMBER}\"" > /tmp/marathon.json
-mv /tmp/marathon.json marathon.json
-MARATHON_URL=${MARATHON_URL} ./bin/marathon deploy
+    # Variables
+    REGISTRY='internal-registry-sys.marathon:5000'
+    CID="${REGISTRY}/tva/worker"
+    MARATHON_URL='http://marathon:8080'
+
+    # Build the container:
+    docker build --rm -t ${CID}:${BUILD_NUMBER} .
+    docker tag -f ${CID}:${BUILD_NUMBER} ${CID}:latest
+
+    # Authenticate if needed:
+    [[ "${EMAIL}" && "${USER}" && "${PASSWORD}" ]] && \
+    docker login -e ${EMAIL} -u ${USER} -p ${PASSWORD} ${REGISTRY}
+
+    # Push to the registry:
+    docker push ${CID}:${BUILD_NUMBER}
+    docker push ${CID}:latest
+
+    # Logout if needed:
+    [[ "${EMAIL}" && "${USER}" && "${PASSWORD}" ]] && \
+    docker logout
+
+    # Deploy to Marathon:
+    cat marathon.json | jq ".container.docker.image |= \"${CID}:${BUILD_NUMBER}\"" > /tmp/marathon.json
+    mv /tmp/marathon.json marathon.json
+    MARATHON_URL=${MARATHON_URL} ./bin/marathon deploy
+    ;;
+
+esac
