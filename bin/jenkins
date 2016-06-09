@@ -22,7 +22,7 @@ case $1 in
 
     # Build the container:
     docker build --rm -t ${CID}:${BUILD_NUMBER} .
-    docker tag -f ${CID}:${BUILD_NUMBER} ${CID}:latest
+    docker tag ${CID}:${BUILD_NUMBER} ${CID}:latest
 
     # Authenticate if needed:
     [[ "${EMAIL}" && "${USER}" && "${PASSWORD}" ]] && \
