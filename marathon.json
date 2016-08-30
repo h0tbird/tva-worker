@@ -1,5 +1,5 @@
 {
-  "id": "worker",
+  "id": "/tva/worker",
   "instances": 1,
   "cpus": 0.1,
   "mem": 256,
@@ -18,6 +18,10 @@
       "forcePullImage": true
     }
   },
+  "dependencies": [
+    "/tva/redis",
+    "/tva/postgres"
+  ],
   "healthChecks": [
     {
       "protocol": "COMMAND",
