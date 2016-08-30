@@ -2,7 +2,7 @@
   "id": "worker",
   "instances": 1,
   "cpus": 0.1,
-  "mem": 512,
+  "mem": 256,
   "backoffSeconds": 1,
   "backoffFactor": 1.15,
   "maxLaunchDelaySeconds": 3600,
