@@ -1,8 +1,8 @@
 {
   "id": "worker",
   "instances": 1,
-  "cpus": 0.5,
-  "mem": 1024,
+  "cpus": 0.1,
+  "mem": 512,
   "backoffSeconds": 1,
   "backoffFactor": 1.15,
   "maxLaunchDelaySeconds": 3600,
@@ -12,7 +12,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "softonic/tva-worker:latest",
+      "image": "katosys/tva-worker:latest",
       "network": "BRIDGE",
       "privileged": false,
       "forcePullImage": true
