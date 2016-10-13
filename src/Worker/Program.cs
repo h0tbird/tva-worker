@@ -107,6 +107,7 @@ namespace Worker
             var command = connection.CreateCommand();
             try
             {
+                Console.WriteLine("INSERT");
                 command.CommandText = "INSERT INTO votes (id, vote) VALUES (@id, @vote)";
                 command.Parameters.AddWithValue("@id", voterId);
                 command.Parameters.AddWithValue("@vote", vote);
@@ -114,6 +115,7 @@ namespace Worker
             }
             catch (DbException)
             {
+                Console.WriteLine("UPDATE");
                 command.CommandText = "UPDATE votes SET vote = @vote WHERE id = @id";
                 command.ExecuteNonQuery();
             }
