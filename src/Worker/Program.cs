@@ -85,7 +85,7 @@ namespace Worker
                 try
                 {
                     Console.Error.WriteLine("Connected to redis");
-                    return ConnectionMultiplexer.Connect(ipAddress);
+                    return ConnectionMultiplexer.Connect(ipAddress + ":" + hostname.Split(':')[1]);
                 }
                 catch (RedisConnectionException)
                 {
