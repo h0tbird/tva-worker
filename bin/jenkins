@@ -1,13 +1,27 @@
 #!/bin/bash
 
+#------------
+# Variables:
+#------------
+
+ID='worker'
+JENKINS_URL='http://jenkins-sys.marathon'
+JENKINS_PROJECT="docker-tva-${ID}"
+REGISTRY='internal-registry-sys.marathon:5000'
+CID="${REGISTRY}/tva/${ID}"
+MARATHON_URL='http://marathon:8080'
+MARATHON_LB_URL='http://slave:9090'
+MANIFEST_DIR="/tmp/zdd/${JENKINS_PROJECT}/${BUILD_NUMBER}"
+
+#--------------
+# Entry point:
+#--------------
+
 case $1 in
 
   'setup')
 
-    # Variables
-    JENKINS_URL='http://jenkins-sys.marathon'
-    JENKINS_PROJECT='docker-tva-worker'
-
+    # Setup the Jenkins job:
     curl -sX POST "${JENKINS_URL}/createItem?name=${JENKINS_PROJECT}" \
       --data-binary "@jenkins.xml" \
       -H "Content-Type: text/xml"
@@ -15,14 +29,12 @@ case $1 in
 
   'build')
 
-    # Variables
-    REGISTRY='internal-registry-sys.marathon:5000'
-    CID="${REGISTRY}/tva/worker"
-    MARATHON_URL='http://marathon:8080'
-
     # Build the container:
     docker build --rm -t ${CID}:${BUILD_NUMBER} .
     docker tag ${CID}:${BUILD_NUMBER} ${CID}:latest
+    ;;
+
+  'push')
 
     # Authenticate if needed:
     [[ "${EMAIL}" && "${USER}" && "${PASSWORD}" ]] && \
@@ -35,11 +47,14 @@ case $1 in
     # Logout if needed:
     [[ "${EMAIL}" && "${USER}" && "${PASSWORD}" ]] && \
     docker logout
+    ;;
+
+  'deploy')
 
     # Deploy to Marathon:
-    cat marathon.json | jq ".container.docker.image |= \"${CID}:${BUILD_NUMBER}\"" > /tmp/marathon.json
-    mv /tmp/marathon.json marathon.json
-    MARATHON_URL=${MARATHON_URL} ./bin/marathon deploy
+    [ -d ${MANIFEST_DIR} ] || mkdir -p ${MANIFEST_DIR}
+    cat marathon.json | jq ".container.docker.image |= \"${CID}:${BUILD_NUMBER}\"" > ${MANIFEST_DIR}/marathon.json
+    MARATHON_URL=${MARATHON_URL} MARATHON_LB_URL=${MARATHON_LB_URL} ./bin/zdd ${MANIFEST_DIR}
     ;;
 
 esac

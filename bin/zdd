@@ -1,0 +1,16 @@
+#!/bin/bash
+
+[ -z "${MARATHON_URL}" ] && echo 'Ops! MARATHON_URL is not set' && exit 1
+[ -z "${MARATHON_LB_URL}" ] && echo 'Ops! MARATHON_LB_URL is not set' && exit 1
+
+docker run -i --rm \
+  --net host \
+  --volume ${1:-${PWD}}:/data \
+  --entrypoint ./zdd.py \
+  mesosphere/marathon-lb:v1.4.1 \
+  --force \
+  --json /data/marathon.json \
+  --marathon ${MARATHON_URL} \
+  --marathon-lb ${MARATHON_LB_URL} \
+  --syslog-socket /dev/null \
+  --max-wait 10

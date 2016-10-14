@@ -7,7 +7,9 @@
   "backoffFactor": 1.15,
   "maxLaunchDelaySeconds": 3600,
   "labels": {
-    "owner": "tva"
+    "owner": "tva",
+    "HAPROXY_DEPLOYMENT_GROUP": "tva_worker",
+    "HAPROXY_DEPLOYMENT_ALT_PORT": "10020"
   },
   "container": {
     "type": "DOCKER",
@@ -18,10 +20,6 @@
       "forcePullImage": true
     }
   },
-  "dependencies": [
-    "/tva/redis",
-    "/tva/postgres"
-  ],
   "healthChecks": [
     {
       "protocol": "COMMAND",
