@@ -9,13 +9,16 @@
   "labels": {
     "owner": "tva",
     "HAPROXY_DEPLOYMENT_GROUP": "tva_worker",
-    "HAPROXY_DEPLOYMENT_ALT_PORT": "10020"
+    "HAPROXY_DEPLOYMENT_ALT_PORT": "10019"
   },
   "container": {
     "type": "DOCKER",
     "docker": {
       "image": "katosys/tva-worker:latest",
       "network": "BRIDGE",
+      "portMappings": [
+        { "containerPort": 80, "hostPort": 0, "servicePort": 10018 }
+      ],
       "privileged": false,
       "forcePullImage": true
     }
