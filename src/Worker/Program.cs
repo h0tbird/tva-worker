@@ -16,8 +16,8 @@ namespace Worker
         {
             try
             {
-                var pgsql = OpenDbConnection("Server=marathon-lb;Port=10014;Username=postgres;");
-                var redis = OpenRedisConnection("marathon-lb:10012").GetDatabase();
+                var pgsql = OpenDbConnection("Server=postgres-tva.marathon;Port=5432;Username=postgres;");
+                var redis = OpenRedisConnection("redis-tva.marathon:6379").GetDatabase();
 
                 var definition = new { vote = "", voter_id = "" };
                 while (true)
