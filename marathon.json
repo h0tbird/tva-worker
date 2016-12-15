@@ -23,6 +23,10 @@
       "forcePullImage": true
     }
   },
+  "dependencies": [
+    "/tva/redis",
+    "/tva/postgres"
+  ],
   "healthChecks": [
     {
       "protocol": "COMMAND",
