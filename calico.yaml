@@ -3,6 +3,6 @@
   metadata:
     name: tva-worker
   spec:
-    selector: app == 'worker'
+    selector: group == 'tva' && app == 'worker'
     egress:
     - action: allow
