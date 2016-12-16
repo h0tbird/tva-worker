@@ -1,0 +1,8 @@
+- apiVersion: v1
+  kind: policy
+  metadata:
+    name: tva-worker
+  spec:
+    selector: app == 'worker'
+    egress:
+    - action: allow
