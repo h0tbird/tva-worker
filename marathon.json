@@ -19,7 +19,7 @@
   "container": {
     "type": "MESOS",
     "docker": {
-      "image": "quay.io/kato/tva-worker:latest",
+      "image": "quay.io/h0tbird/tva-worker:latest",
       "forcePullImage": true
     }
   },
