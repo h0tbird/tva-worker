@@ -3,7 +3,7 @@
 
 # tva-worker
 
-[![Build Status](https://travis-ci.org/katosys/tva-worker.svg?branch=master)](https://travis-ci.org/katosys/tva-worker)
+[![Build Status](https://travis-ci.org/h0tbird/tva-worker.svg?branch=master)](https://travis-ci.org/h0tbird/tva-worker)
 
 Containerized worker.
 
