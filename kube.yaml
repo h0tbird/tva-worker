@@ -14,3 +14,10 @@ spec:
       - name: worker
         image: quay.io/h0tbird/tva-worker:latest
         imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
