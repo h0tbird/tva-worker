@@ -13,4 +13,4 @@ spec:
       containers:
       - name: worker
         image: quay.io/h0tbird/tva-worker:latest
-      imagePullPolicy: Always
+        imagePullPolicy: Always
