@@ -17,17 +17,41 @@ namespace Worker
             try
             {
                 var pgsql = OpenDbConnection("Server=postgres-tva;Port=5432;Username=postgres;");
-                var redis = OpenRedisConnection("redis-tva:6379").GetDatabase();
+                var redisConn = OpenRedisConnection("redis-tva:6379");
+                var redis = redisConn.GetDatabase();
+
+                // Keep alive is not implemented in Npgsql yet. This workaround was recommended:
+                // https://github.com/npgsql/npgsql/issues/1214#issuecomment-235828359
+                var keepAliveCommand = pgsql.CreateCommand();
+                keepAliveCommand.CommandText = "SELECT 1";
 
                 var definition = new { vote = "", voter_id = "" };
                 while (true)
                 {
+                    // Reconnect redis if down
+                    if (redisConn == null || !redisConn.IsConnected) {
+                        Console.WriteLine("Reconnecting Redis");
+                        redis = OpenRedisConnection("redis").GetDatabase();
+                    }
                     string json = redis.ListLeftPopAsync("votes").Result;
                     if (json != null)
                     {
                         var vote = JsonConvert.DeserializeAnonymousType(json, definition);
                         Console.WriteLine($"Processing vote for '{vote.vote}' by '{vote.voter_id}'");
-                        UpdateVote(pgsql, vote.voter_id, vote.vote);
+                        // Reconnect DB if down
+                        if (!pgsql.State.Equals(System.Data.ConnectionState.Open))
+                        {
+                            Console.WriteLine("Reconnecting DB");
+                            pgsql = OpenDbConnection("Server=db;Username=postgres;");
+                        }
+                        else
+                        { // Normal +1 vote requested
+                            UpdateVote(pgsql, vote.voter_id, vote.vote);
+                        }
+                    }
+                    else
+                    {
+                        keepAliveCommand.ExecuteNonQuery();
                     }
                 }
             }
@@ -66,7 +90,7 @@ namespace Worker
 
             var command = connection.CreateCommand();
             command.CommandText = @"CREATE TABLE IF NOT EXISTS votes (
-                                        id VARCHAR(255) NOT NULL UNIQUE, 
+                                        id VARCHAR(255) NOT NULL UNIQUE,
                                         vote VARCHAR(255) NOT NULL
                                     )";
             command.ExecuteNonQuery();
@@ -76,7 +100,7 @@ namespace Worker
 
         private static ConnectionMultiplexer OpenRedisConnection(string hostname)
         {
-            // Use IP address to workaround https://github.com/StackExchange/StackExchange.Redis/issues/410
+            // Use IP address to workaround hhttps://github.com/StackExchange/StackExchange.Redis/issues/410
             var ipAddress = GetIp(hostname.Split(':')[0]);
             Console.WriteLine($"Found redis at {ipAddress}");
 
@@ -84,7 +108,7 @@ namespace Worker
             {
                 try
                 {
-                    Console.Error.WriteLine("Connected to redis");
+                    Console.Error.WriteLine("Connecting to redis");
                     return ConnectionMultiplexer.Connect(ipAddress + ":" + hostname.Split(':')[1]);
                 }
                 catch (RedisConnectionException)
