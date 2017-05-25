@@ -1,0 +1,11 @@
+options:
+  docker: true
+
+pipelines:
+  default:
+    - step:
+        script:
+          - export IMAGE_NAME=quay.io/softonic/tva-worker:${BITBUCKET_COMMIT::6}
+          - docker build -t ${IMAGE_NAME} .
+          - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} quay.io
+          - docker push ${IMAGE_NAME}
