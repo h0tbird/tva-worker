@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#------------------------------------------------------------------------------
+# helmSet produces dynamic helm --set arguments (example below):
+#
+#  --set postgres.image.tag=6a0d345
+#  --set redis.image.tag=5d34c24
+#  --set results.image.tag=6402ae3
+#  --set voting.image.tag=88a2c12
+#  --set worker.image.tag=bd9d761
+#
+#------------------------------------------------------------------------------
+
+function helmSet() {
+  GIT_URL=$(git remote -v | awk '/fetch/ {print "dirname "$2}' | sh)
+  for i in postgres redis results voting worker; do
+    HASH=$(git ls-remote ${GIT_URL}/tva-${i}.git | awk '/HEAD/ {print $1}')
+    echo -n "--set ${i}.image.tag=${HASH::7} "
+  done
+}
+
+#------------------------------------------------------------------------------
+# Download the Helm chart:
+#------------------------------------------------------------------------------
+
+curl -s https://quay.io/cnr/api/v1/packages/softonic/thevotingapp/0.1.0/helm/pull | \
+jq -r .blob | base64 -d | tar zxvf -
+
+#------------------------------------------------------------------------------
+# Run 'helm upgrade' with dynamic arguments:
+#------------------------------------------------------------------------------
+
+helm upgrade thevotingapp thevotingapp $(helmSet)
