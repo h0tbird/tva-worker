@@ -20,14 +20,7 @@ function helmSet() {
 }
 
 #------------------------------------------------------------------------------
-# Download the Helm chart:
-#------------------------------------------------------------------------------
-
-curl -s https://quay.io/cnr/api/v1/packages/softonic/thevotingapp/0.1.0/helm/pull | \
-jq -r .blob | base64 -d | tar zxvf -
-
-#------------------------------------------------------------------------------
 # Run 'helm upgrade' with dynamic arguments:
 #------------------------------------------------------------------------------
 
-helm upgrade thevotingapp thevotingapp $(helmSet)
+helm upgrade thevotingapp ${1} $(helmSet)
